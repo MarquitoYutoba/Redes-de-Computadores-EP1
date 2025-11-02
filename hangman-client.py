@@ -21,11 +21,22 @@ def receber_msg_server(socket_do_cliente, buffer_do_cliente):
         if b'\r\n' in buffer_do_cliente:
             indice_terminador = buffer_do_cliente.find(b'\r\n')
             msg_bytes = buffer_do_cliente[:indice_terminador]
-            msg_string = msg_bytes.decode('ascii')
+            msg_string = msg_bytes.decode('ascii',errors="replace")
             buffer_do_cliente = buffer_do_cliente[indice_terminador + 2:]
 
             return msg_string, buffer_do_cliente
 
+def Contem_invalido():
+    return
+
+#criar uma função para fechar a conexão
+def E_INVALID_FORMAT():
+    return
+
+def E_UNEXPECTED_MESSAGE(esperado, mensagem, servidor):
+    if mensagem != esperado  and mensagem.find("ERROR") > -1:
+        enviar_msg_server(servidor, "ERROR UNEXPECTED_MESSAGE")
+        return
 
 nome = sys.argv[1]
 if len(sys.argv) > 2:
@@ -47,7 +58,8 @@ if mensagem != 'STANDBY':
 print("Aguardando o jogo começar...")
 
 mensagem, buffer_recebimento = receber_msg_server(socket_client, buffer_recebimento)
-if mensagem == 'MASTER':
+partes = mensagem.split()
+if partes[0] == 'MASTER':
     print("Você é o mestre do jogo!")
     palavra = str(input("Digite a palavra: "))
     enviar_msg_server(socket_client, f"WORD {palavra}")
@@ -55,11 +67,12 @@ if mensagem == 'MASTER':
     if mensagem != 'OK':
         sys.exit(0)
     mensagem, buffer_recebimento = receber_msg_server(socket_client, buffer_recebimento)
+    partes = mensagem.split()
 
-if mensagem == 'NEWGAME':
+if partes[0] == 'NEWGAME':
     print("Jogo iniciado!")
-    vidas = int(mensagem.split()[1])
-    tamanho_palavra = int(mensagem.split()[2])
+    vidas = int(partes[1])
+    tamanho_palavra = int(partes[2])
     print(f"Vidas para advinhar: {vidas}")
     print(f"Tamanho da palavra: {tamanho_palavra}.")
     print()
