@@ -1,10 +1,12 @@
 import socket
 import sys
 
+
 # Função para enviar mensagem para o servidor
 def enviar_msg_server(socket_client, mensagem_base):
-    mensagem_completa = (mensagem_base + '\r\n').encode('ascii',errors='replace')
+    mensagem_completa = (mensagem_base + '\r\n').encode('ascii', errors='replace')
     socket_client.sendall(mensagem_completa)
+
 
 # Função para receber mensagem do servidor
 def receber_msg_server(socket_client, buffer_do_cliente):
@@ -19,19 +21,22 @@ def receber_msg_server(socket_client, buffer_do_cliente):
         if b'\r\n' in buffer_do_cliente:
             indice_terminador = buffer_do_cliente.find(b'\r\n')
             msg_bytes = buffer_do_cliente[:indice_terminador]
-            msg_string = msg_bytes.decode('ascii',errors='replace')
+            msg_string = msg_bytes.decode('ascii', errors='replace')
             buffer_do_cliente = buffer_do_cliente[indice_terminador + 2:]
 
             return msg_string, buffer_do_cliente
 
+
 def fechar_conexao(socket_client):
     socket_client.close()
+
 
 def E_UNEXPECTED_MESSAGE(esperado, mensagem, socket_client):
     if mensagem != esperado and mensagem.find('ERROR') == -1:
         enviar_msg_server(socket_client, 'ERROR UNEXPECTED_MESSAGE')
         fechar_conexao(socket_client)
         sys.exit('ERROR UNEXPECTED_MESSAGE')
+
 
 if len(sys.argv) == 2:
     nome = sys.argv[1]
